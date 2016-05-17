@@ -1,0 +1,57 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:jpa="http://www.springframework.org/schema/data/jpa"
+	xsi:schemaLocation=" http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd 
+     http://www.springframework.org/schema/context   http://www.springframework.org/schema/context/spring-context-4.0.xsd 
+     http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.0.xsd 
+     http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.0.xsd
+	 http://www.springframework.org/schema/data/jpa http://www.springframework.org/schema/data/jpa/spring-jpa.xsd">
+
+	<mvc:annotation-driven />
+	<!-- Enable @Transactional annotation -->
+	<tx:annotation-driven transaction-manager="transactionManager" />
+
+	<context:component-scan base-package="com.drive.ad" />
+
+	<!-- MySQL Datasource with Commons DBCP connection pooling -->
+	<bean class="org.apache.commons.dbcp.BasicDataSource" id="dataSource">
+		<property name="driverClassName" value="com.mysql.jdbc.Driver"/>
+		<property name="url" value="jdbc:mysql://localhost:3306/projectAuto" />
+		<property name="username" value="root" />
+		<property name="password" value="password" />
+		<property name="initialSize" value="3" />
+   	    <property name="maxActive" value="10" />
+	</bean>
+
+	<!-- EntityManagerFactory -->
+	<bean
+		class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean"
+		id="entityManagerFactory">
+		<property name="persistenceUnitName" value="projectAuto" />
+		<property name="dataSource" ref="dataSource" />
+		<property name="packagesToScan" value="com.drive.ad.entity" />
+		<property name="jpaVendorAdapter">
+			<bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter" />
+		</property>
+		<property name="jpaProperties">
+			<props>
+				<prop key="hibernate.dialect">org.hibernate.dialect.MySQL5Dialect</prop>
+				<prop key="hibernate.show_sql">false</prop>
+			</props>
+		</property>
+	</bean>
+
+	<!-- Transaction Manager -->
+	<bean class="org.springframework.orm.jpa.JpaTransactionManager"
+		id="transactionManager">
+		<property name="entityManagerFactory" ref="entityManagerFactory" />
+	</bean>
+
+
+	<jpa:repositories base-package="com.drive.ad.dao"
+		repository-impl-postfix="Jpa" entity-manager-factory-ref="entityManagerFactory"  
+		transaction-manager-ref="transactionManager" 
+	/>
+
+</beans>  
